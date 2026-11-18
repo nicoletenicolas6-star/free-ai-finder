@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Free AI Finder · directorio de IA con modelos gratis</title>
+<meta name="description" content="Buscador de proveedores de inteligencia artificial con modelos y planes gratuitos: APIs gratis, chats gratis, imagen, audio y modelos locales." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+<style>
+  :root{
+    --bg:#07080c;
+    --bg-2:#0c0e15;
+    --panel:#10131c;
+    --panel-2:#151926;
+    --line:#1e2434;
+    --line-2:#2a3145;
+    --txt:#e8ecf6;
+    --muted:#8b95ad;
+    --dim:#5d6782;
+    --lime:#b6ff3d;
+    --cyan:#37e6d0;
+    --violet:#9d7bff;
+    --amber:#ffc453;
+    --pink:#ff6ea9;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(900px 520px at 12% -8%, rgba(182,255,61,.10), transparent 60%),
+      radial-gradient(760px 480px at 92% 2%, rgba(55,230,208,.09), transparent 62%),
+      radial-gradient(700px 500px at 55% 110%, rgba(157,123,255,.10), transparent 65%),
+      var(--bg);
+    color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    line-height:1.55;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(255,255,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.022) 1px,transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse 100% 70% at 50% 0%,#000 30%,transparent 85%);
+  }
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:44px 20px 90px}
+
+  /* ---------- header ---------- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:-.02em;font-size:15px}
+  .brand .mark{
+    width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:16px;
+    background:linear-gradient(150deg,var(--lime),var(--cyan));color:#04110a;
+    box-shadow:0 0 0 1px rgba(182,255,61,.35),0 8px 26px -8px rgba(182,255,61,.55);
+  }
+  .brand span.sub{color:var(--dim);font-weight:500;font-family:var(--mono);font-size:11px;letter-spacing:.02em}
+  .stamp{
+    font-family:var(--mono);font-size:11px;color:var(--muted);
+    border:1px solid var(--line);background:rgba(16,19,28,.7);
+    padding:6px 11px;border-radius:100px;display:flex;align-items:center;gap:7px;white-space:nowrap;
+  }
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 9px var(--lime)}
+
+  h1{
+    font-size:clamp(34px,6.2vw,62px);line-height:1.02;letter-spacing:-.035em;margin:6px 0 0;font-weight:800;
+  }
+  h1 em{
+    font-style:normal;
+    background:linear-gradient(95deg,var(--lime) 5%,var(--cyan) 48%,var(--violet) 95%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{color:var(--muted);font-size:clamp(14px,1.7vw,17px);max-width:660px;margin:16px 0 0}
+
+  /* ---------- search ---------- */
+  .search{position:relative;margin:30px 0 14px}
+  .search svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--dim)}
+  #q{
+    width:100%;padding:17px 108px 17px 48px;border-radius:15px;
+    background:linear-gradient(180deg,rgba(21,25,38,.95),rgba(14,17,25,.95));
+    border:1px solid var(--line-2);color:var(--txt);
+    font-size:15.5px;font-family:inherit;outline:none;
+    transition:border-color .18s,box-shadow .18s;
+  }
+  #q::placeholder{color:var(--dim)}
+  #q:focus{border-color:rgba(182,255,61,.55);box-shadow:0 0 0 4px rgba(182,255,61,.10)}
+  .kbd{
+    position:absolute;right:14px;top:50%;transform:translateY(-50%);
+    font-family:var(--mono);font-size:11px;color:var(--dim);
+    border:1px solid var(--line-2);border-bottom-width:2px;border-radius:6px;padding:4px 8px;background:var(--panel);
+  }
+
+  /* ---------- chips ---------- */
+  .rowlabel{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:22px 0 9px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:8px 14px;border-radius:100px;cursor:pointer;
+    background:rgba(16,19,28,.8);border:1px solid var(--line);
+    color:var(--muted);font-size:13px;font-family:inherit;font-weight:500;
+    transition:.15s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--line-2);color:var(--txt);transform:translateY(-1px)}
+  .chip .n{font-family:var(--mono);font-size:10.5px;color:var(--dim);background:rgba(255,255,255,.05);padding:1px 6px;border-radius:100px}
+  .chip.on{background:var(--lime);border-color:var(--lime);color:#06110a;font-weight:650}
+  .chip.on .n{color:#0a1a0d;background:rgba(0,0,0,.12)}
+  .chip.ghost{border-style:dashed}
+  .chip.toggle.on{background:var(--violet);border-color:var(--violet);color:#0a0416}
+
+  .toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:30px 0 14px;border-top:1px solid var(--line);padding-top:18px}
+  .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .count b{color:var(--lime)}
+  .sortwrap{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--dim)}
+  select{
+    background:var(--panel);color:var(--txt);border:1px solid var(--line-2);border-radius:9px;
+    padding:8px 11px;font-family:inherit;font-size:12.5px;outline:none;cursor:pointer
+  }
+
+  /* ---------- grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .card{
+    position:relative;display:flex;flex-direction:column;gap:0;
+    background:linear-gradient(180deg,rgba(21,25,38,.92),rgba(13,16,24,.92));
+    border:1px solid var(--line);border-radius:16px;padding:17px 17px 14px;
+    transition:border-color .18s,transform .18s,box-shadow .18s;
+    overflow:hidden;
+  }
+  .card::after{
+    content:"";position:absolute;inset:auto 0 0 0;height:2px;
+    background:linear-gradient(90deg,var(--accent,var(--lime)),transparent);
+    opacity:0;transition:opacity .18s;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:0 18px 40px -24px rgba(0,0,0,.9)}
+  .card:hover::after{opacity:.9}
+  .card.head{
+    grid-column:1/-1;
+    background:rgba(157,123,255,.07);border-color:rgba(157,123,255,.28);
+    border-radius:13px;padding:12px 15px;flex-direction:row;align-items:center;gap:12px;
+    font-size:13px;color:#cfc4ff;
+  }
+  .card.head:hover{transform:none;box-shadow:none}
+  .card.head::after{display:none}
+
+  .c-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px}
+  .logo{
+    flex:0 0 38px;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;
+    font-weight:800;font-size:15px;letter-spacing:-.03em;
+    background:color-mix(in srgb,var(--accent,var(--lime)) 16%,transparent);
+    color:var(--accent,var(--lime));
+    border:1px solid color-mix(in srgb,var(--accent,var(--lime)) 34%,transparent);
+    font-family:var(--mono);
+  }
+  .c-name{font-size:15.5px;font-weight:680;letter-spacing:-.015em;line-height:1.25}
+  .c-cat{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-top:3px}
+  .fav{
+    margin-left:auto;background:none;border:0;cursor:pointer;color:var(--dim);
+    font-size:15px;line-height:1;padding:3px;border-radius:6px;transition:.15s
+  }
+  .fav:hover{color:var(--amber);background:rgba(255,255,255,.05)}
+  .fav.on{color:var(--amber)}
+
+  .tagline{font-size:13.3px;color:var(--muted);margin:0 0 12px;min-height:36px}
+  .free{
+    background:rgba(182,255,61,.055);border:1px solid rgba(182,255,61,.16);
+    border-radius:10px;padding:9px 11px;font-size:12.6px;color:#d7ecc3;
+    display:flex;gap:8px;align-items:flex-start;margin-bottom:11px;
+  }
+  .free b{color:var(--lime);font-weight:600}
+  .free .ico{flex:0 0 auto;font-size:11px;line-height:1.5;opacity:.9}
+  .models{font-family:var(--mono);font-size:11px;color:var(--dim);margin:0 0 11px;word-break:break-word}
+  .models b{color:var(--muted);font-weight:500}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+  .tag{font-size:10.5px;font-family:var(--mono);padding:3px 7px;border-radius:5px;background:rgba(255,255,255,.045);color:var(--muted);border:1px solid rgba(255,255,255,.05)}
+  .tag.warn{color:var(--amber);background:rgba(255,196,83,.09);border-color:rgba(255,196,83,.22)}
+  .tag.good{color:var(--lime);background:rgba(182,255,61,.09);border-color:rgba(182,255,61,.22)}
+  .c-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,.055);padding-top:11px}
+  .go{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    font-size:12.6px;font-weight:600;color:var(--txt);
+    background:rgba(255,255,255,.055);border:1px solid var(--line-2);
+    padding:7px 12px;border-radius:8px;transition:.15s;white-space:nowrap
+  }
+  .go:hover{background:var(--lime);border-color:var(--lime);color:#06110a}
+  .go svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+  .verif{font-family:var(--mono);font-size:10px;color:var(--dim)}
+
+  .empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);border:1px dashed var(--line-2);border-radius:16px}
+  .empty b{display:block;color:var(--txt);font-size:17px;margin-bottom:6px}
+
+  /* ---------- footer ---------- */
+  .note{
+    margin-top:38px;border:1px solid var(--line);border-radius:14px;
+    background:rgba(16,19,28,.6);padding:16px 18px;font-size:12.6px;color:var(--muted);
+  }
+  .note b{color:var(--txt)}
+  .note ul{margin:8px 0 0;padding-left:18px}
+  .note li{margin:4px 0}
+  .foot{margin-top:26px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--dim)}
+  @media (max-width:600px){
+    .wrap{padding:28px 14px 70px}
+    #q{padding-right:16px}
+    .kbd{display:none}
+    .grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">⚡</div>
+      <div>Free AI Finder<br><span class="sub">directorio · modelos gratis</span></div>
+    </div>
+    <div class="stamp"><span class="dot"></span><span id="stampText">revisado 17 nov 2026</span></div>
+  </div>
+
+  <h1>Encuentra IA<br><em>que no te cueste nada.</em></h1>
+  <p class="lede">Un solo lugar para comparar proveedores de inteligencia artificial con modelos gratuitos: APIs para tus apps, chats sin pagar, generación de imagen y audio, y modelos que corren en tu propio PC. Filtra por lo que necesitas y abre el sitio oficial.</p>
+
+  <div class="search">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Busca por nombre, modelo o caso de uso… (ej. gemini, imagen, sin tarjeta)" autocomplete="off" spellcheck="false" />
+    <span class="kbd">/</span>
+  </div>
+
+  <div class="rowlabel">Atajos · ¿para qué lo quieres?</div>
+  <div class="chips" id="quick"></div>
+
+  <div class="rowlabel">Filtrar por tipo</div>
+  <div class="chips" id="filters"></div>
+
+  <div class="toolbar">
+    <div class="count"><b id="num">0</b> resultados</div>
+    <div class="sortwrap">
+      <label for="sort">Ordenar</label>
+      <select id="sort">
+        <option value="reco">Recomendados</option>
+        <option value="az">A → Z</option>
+        <option value="libre">Sin tarjeta primero</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="note">
+    <b>Cómo leer esto.</b> Los planes gratuitos cambian cada mes (y los límites reales casi siempre aparecen solo dentro de tu panel una vez creas la cuenta). Esto es una guía, no un contrato:
+    <ul>
+      <li><b>Sin tarjeta</b> significa que puedes empezar sin método de pago; varios igual piden cuenta o verificar teléfono.</li>
+      <li>En casi todo tier gratis tus prompts <b>pueden usarse para entrenar</b> el modelo. No subas datos privados ni de clientes.</li>
+      <li>«Trial» o «crédito» = se acaba. «Tier gratis» = se renueva (normalmente cada día o cada mes).</li>
+      <li>Antes de meterlo en producción, revisa los términos del proveedor y ten un plan B (o un modelo local).</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    <span>Free AI Finder · un solo archivo HTML, funciona offline</span>
+    <span>datos: docs públicas de cada proveedor · nov 2026</span>
+  </div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   DATOS
+   cat: api | chat | imagen | audio | local | creditos
+   card: true si requiere método de pago
+   acc: color de acento
+------------------------------------------------------------------- */
+const DATA = [
+  /* ---------- APIs con tier gratuito ---------- */
+  {n:"Google AI Studio",full:"Gemini API",cat:"api",acc:"#37e6d0",reco:100,
+   tag:"El tier gratis más generoso para modelos Flash, sin tarjeta.",
+   free:"Tokens gratis en Gemini Flash / Flash-Lite y Gemma. Límites por proyecto, se ven en AI Studio y se reinician a medianoche (PT).",
+   models:"gemini-3.x-flash · flash-lite · gemma · embeddings · tts",
+   tags:["sin tarjeta","compatible OpenAI"],warn:"prompts usados para entrenar",
+   url:"https://aistudio.google.com/",verif:"sin límites públicos desde 2026"},
+
+  {n:"Groq",full:"GroqCloud",cat:"api",acc:"#ffc453",reco:95,
+   tag:"La inferencia más rápida del mercado en modelos abiertos.",
+   free:"Plan Free por organización y modelo: 30 req/min · 1.000 req/día · 8K tokens/min · 200K tokens/día.",
+   models:"gpt-oss-120b · gpt-oss-20b · qwen3 · whisper",
+   tags:["sin tarjeta","ultra rápido"],url:"https://console.groq.com/",verif:"30 RPM / 1K RPD"},
+
+  {n:"OpenRouter",full:"OpenRouter",cat:"api",acc:"#9d7bff",reco:92,
+   tag:"Una sola API key para decenas de modelos, varios marcados :free.",
+   free:"Modelos con sufijo :free: 20 req/min y 50/día. Si compras 10 créditos, sube a 1.000/día.",
+   models:"modelos :free de Gemma, Nemotron, Qwen, Llama…",
+   tags:["sin tarjeta","agregador"],warn:"el catálogo gratis cambia",
+   url:"https://openrouter.ai/models?max_price=0",verif:"~15 modelos :free"},
+
+  {n:"Cloudflare Workers AI",full:"Workers AI",cat:"api",acc:"#ff9d3d",reco:80,
+   tag:"10.000 Neurons gratis al día con endpoint compatible OpenAI.",
+   free:"Plan Workers Free: 10.000 Neurons/día (≈ cientos de miles de tokens) y 300 req/min en texto. Corte duro al agotarse.",
+   models:"llama · gpt-oss · qwen · whisper · flux",
+   tags:["cuenta Cloudflare","sin tarjeta"],warn:"modelos grandes piden pago",
+   url:"https://developers.cloudflare.com/workers-ai/",verif:"10K neurons/día"},
+
+  {n:"Mistral AI",full:"La Plateforme",cat:"api",acc:"#ff7043",reco:78,
+   tag:"Plan gratuito europeo, buenos modelos pequeños y medianos.",
+   free:"Modo gratuito / Experiment con cuota mensual de tokens en modelos Small y Medium. Los números exactos salen en la consola.",
+   models:"mistral small · medium · ocr · embeddings",
+   tags:["teléfono verificado"],warn:"pueden entrenar con tus datos",
+   url:"https://console.mistral.ai/",verif:"cuota mensual"},
+
+  {n:"Cohere",full:"Trial key",cat:"api",acc:"#4dd0a8",reco:70,
+   tag:"Trial key para prototipos, muy fuerte en RAG y reranking.",
+   free:"1.000 llamadas de API al mes · 20 req/min en Chat. Pensado para evaluación, no producción.",
+   models:"command · embed · rerank",
+   tags:["trial","sin tarjeta"],warn:"no para producción",
+   url:"https://dashboard.cohere.com/api-keys",verif:"1K calls/mes"},
+
+  {n:"Cerebras",full:"Cerebras Cloud",cat:"api",acc:"#e656a0",reco:72,
+   tag:"Inferencia a velocidad absurda, con crédito de prueba.",
+   free:"5 $ de crédito por 30 días · 5 req/min y hasta 1M tokens/día en modelos listados.",
+   models:"gpt-oss-120b · qwen3 · llama",
+   tags:["trial","tarjeta requerida"],url:"https://cloud.cerebras.ai/",verif:"30 días"},
+
+  {n:"NVIDIA NIM",full:"build.nvidia.com",cat:"api",acc:"#76b900",reco:68,
+   tag:"Catálogo enorme de modelos alojados gratis para prototipar.",
+   free:"Acceso gratuito de prototipado (~40 req/min). Servir usuarios reales requiere licencia/plan.",
+   models:"llama · nemotron · deepseek · flux · whisper",
+   tags:["teléfono verificado"],warn:"solo prototipos",
+   url:"https://build.nvidia.com/",verif:"~40 RPM"},
+
+  {n:"SambaNova Cloud",full:"SambaNova",cat:"api",acc:"#5b8cff",reco:62,
+   tag:"Free tier silencioso con modelos abiertos grandes.",
+   free:"20 req/min · 20 req/día · 200K tokens/día por modelo. Sin método de pago.",
+   models:"llama · deepseek · gpt-oss",
+   tags:["sin tarjeta"],url:"https://cloud.sambanova.ai/",verif:"200K tok/día"},
+
+  {n:"GitHub Models",full:"GitHub Models / Copilot",cat:"api",acc:"#c9d1d9",reco:74,
+   tag:"Prueba modelos de OpenAI, Meta o Mistral con tu cuenta de GitHub.",
+   free:"Tier gratuito para prototipos con tu cuenta de GitHub; límites por minuto y por día según modelo.",
+   models:"gpt · llama · mistral · phi · deepseek",
+   tags:["cuenta GitHub"],url:"https://github.com/marketplace/models",verif:"cambia por modelo"},
+
+  {n:"Z.ai (GLM)",full:"Z.ai",cat:"api",acc:"#7c9cff",reco:66,
+   tag:"Familia GLM con variantes Flash a coste cero.",
+   free:"Modelos GLM Flash sin coste por token; el resto es de los más baratos del mercado. Límites en consola.",
+   models:"glm-4.x-flash · glm-4.6",
+   tags:["sin tarjeta"],url:"https://z.ai/",verif:"flash = 0 $"},
+
+  {n:"Hugging Face",full:"Inference Providers",cat:"api",acc:"#ffd21e",reco:64,
+   tag:"Miles de modelos open source con crédito mensual pequeño.",
+   free:"Crédito mensual limitado en Inference Providers; los Spaces de la comunidad son gratis e ilimitados (con cola).",
+   models:"todo el ecosistema open source",
+   tags:["cuenta HF"],warn:"el crédito es pequeño",
+   url:"https://huggingface.co/inference/models",verif:"crédito mensual"},
+
+  {n:"Jina AI",full:"Jina",cat:"api",acc:"#ff5b5b",reco:55,
+   tag:"Embeddings y reranking gratis, clave para RAG.",
+   free:"10M tokens gratis por API key en embeddings; también reader y reranker.",
+   models:"jina-embeddings · reranker · reader",
+   tags:["sin tarjeta","solo embeddings"],url:"https://jina.ai/",verif:"10M tokens"},
+
+  {n:"ModelScope",full:"Alibaba ModelScope",cat:"api",acc:"#ff8a3d",reco:52,
+   tag:"API de modelos abiertos con cuota diaria amplia.",
+   free:"2.000 llamadas al día en los modelos disponibles, sin coste.",
+   models:"qwen · glm · deepseek",
+   tags:["cuenta"],url:"https://modelscope.cn/",verif:"2K calls/día"},
+
+  {n:"Alibaba Model Studio",full:"Model Studio",cat:"api",acc:"#ff7a45",reco:50,
+   tag:"Cuota única de tokens de prueba para Qwen.",
+   free:"≈1M tokens por modelo durante 90 días (requiere registro y verificación).",
+   models:"qwen · qwen-vl · qwen-coder",
+   tags:["trial"],warn:"cuota única",
+   url:"https://www.alibabacloud.com/en/product/modelstudio",verif:"90 días"},
+
+  {n:"Vercel AI Gateway",full:"AI Gateway",cat:"creditos",acc:"#d4d4d4",reco:58,
+   tag:"5 $ al mes para enrutar modelos con una sola API.",
+   free:"Crédito mensual de 5 $ para llamar a cualquier modelo del catálogo, con fallback automático entre proveedores.",
+   models:"cualquier modelo del catálogo",
+   tags:["cuenta Vercel","crédito mensual"],url:"https://vercel.com/ai-gateway",verif:"5 $/mes"},
+
+  {n:"Google Cloud",full:"Vertex AI",cat:"creditos",acc:"#4285f4",reco:56,
+   tag:"300 $ de crédito inicial para modelos de Google y terceros.",
+   free:"300 $ durante 90 días en cuentas nuevas; cubre Vertex AI, Gemini, Imagen y Veo.",
+   models:"gemini · imagen · veo · claude vía vertex",
+   tags:["tarjeta requerida","300 $"],url:"https://cloud.google.com/free",verif:"90 días"},
+
+  {n:"Microsoft Azure",full:"Azure AI Foundry",cat:"creditos",acc:"#4cc2ff",reco:54,
+   tag:"200 $ de crédito y modelos de OpenAI, Meta y Mistral.",
+   free:"200 $ por 30 días en cuenta nueva + capa gratuita de algunos servicios de IA.",
+   models:"gpt · llama · phi · mistral",
+   tags:["tarjeta requerida","200 $"],url:"https://azure.microsoft.com/free/",verif:"30 días"},
+
+  /* ---------- Imagen y audio ---------- */
+  {n:"Pollinations",full:"Pollinations.ai",cat:"imagen",acc:"#b6ff3d",reco:82,
+   tag:"Genera imágenes (y texto) sin API key, desde una URL.",
+   free:"API pública sin clave para imagen y texto: se usa pegando la URL. Perfecta para probar ideas rápido.",
+   models:"flux · turbo · text",
+   tags:["sin API key","sin tarjeta"],warn:"límite de velocidad",
+   url:"https://pollinations.ai/",verif:"sin key"},
+
+  {n:"Hugging Face Spaces",full:"Spaces",cat:"imagen",acc:"#ffd21e",reco:76,
+   tag:"Miles de demos de Flux, SDXL y vídeo en el navegador.",
+   free:"Gratis e ilimitado en la mayoría de Spaces (con cola). También puedes duplicar uno a tu cuenta.",
+   models:"flux · sdxl · wan · svd",
+   tags:["sin tarjeta","comunidad"],url:"https://huggingface.co/spaces",verif:"cola gratis"},
+
+  {n:"Leonardo AI",full:"Leonardo",cat:"imagen",acc:"#c084fc",reco:60,
+   tag:"Imagen estilo videojuego con tokens diarios gratis.",
+   free:"≈150 tokens gratis al día para generar imágenes con sus modelos Phoenix y SDXL.",
+   models:"phoenix · sdxl · lightning",
+   tags:["cuenta","150 tokens/día"],url:"https://leonardo.ai/",verif:"diario"},
+
+  {n:"ElevenLabs",full:"ElevenLabs",cat:"audio",acc:"#f4f4f4",reco:62,
+   tag:"Las mejores voces sintéticas en español, con plan gratis.",
+   free:"10.000 créditos al mes (~10 min de audio) en voces TTS; atribución requerida en el plan free.",
+   models:"eleven multilingual · turbo · v3",
+   tags:["cuenta","10K créditos"],warn:"requiere atribución",
+   url:"https://elevenlabs.io/",verif:"mensual"},
+
+  /* ---------- Chat gratis ---------- */
+  {n:"ChatGPT",full:"OpenAI",cat:"chat",acc:"#10a37f",reco:88,
+   tag:"El chat de referencia; el plan gratis alcanza para casi todo.",
+   free:"Plan gratuito con el modelo mini de turno, límites diarios, búsqueda web y algo de generación de imágenes.",
+   models:"gpt mini · búsqueda · imagen",
+   tags:["sin tarjeta","cuenta"],warn:"sin API gratis",
+   url:"https://chatgpt.com/",verif:"plan free"},
+
+  {n:"Gemini",full:"Google",cat:"chat",acc:"#4285f4",reco:90,
+   tag:"El plan gratis más completo: modelo tope, imágenes y contexto enorme.",
+   free:"App gratuita con modelo Flash y cuota limitada de razonamiento profundo, generación de imágenes y NotebookLM.",
+   models:"gemini flash · imagen",
+   tags:["sin tarjeta","cuenta Google"],url:"https://gemini.google.com/",verif:"plan free"},
+
+  {n:"Claude",full:"Anthropic",cat:"chat",acc:"#d97757",reco:84,
+   tag:"El mejor para escribir y razonar; plan gratis con cupo por franjas.",
+   free:"Plan gratuito con límite de mensajes que se renueva cada pocas horas, más proyectos y artefactos.",
+   models:"sonnet (limitado) · haiku",
+   tags:["sin tarjeta","cuenta"],warn:"sin API gratis",
+   url:"https://claude.ai/",verif:"cupo por franjas"},
+
+  {n:"Microsoft Copilot",full:"Copilot",cat:"chat",acc:"#4cc2ff",reco:74,
+   tag:"Chat gratis con búsqueda web, imágenes y Office integrado.",
+   free:"Gratis con cuenta Microsoft: chat con modelos de OpenAI, generación de imágenes y voz.",
+   models:"gpt · dall-e · designer",
+   tags:["sin tarjeta","cuenta Microsoft"],url:"https://copilot.microsoft.com/",verif:"plan free"},
+
+  {n:"DeepSeek",full:"DeepSeek",cat:"chat",acc:"#4d6bfe",reco:80,
+   tag:"Razonamiento fuerte gratis, sin cupos agresivos.",
+   free:"Chat web y app gratis con el modelo de razonamiento; sin límite duro anunciado.",
+   models:"deepseek v3 · r-series",
+   tags:["sin tarjeta","open weights"],warn:"datos en servidores CN",
+   url:"https://chat.deepseek.com/",verif:"gratis"},
+
+  {n:"Qwen Chat",full:"Alibaba",cat:"chat",acc:"#615ced",reco:72,
+   tag:"Chat gratis con Qwen, visión y generación de imagen.",
+   free:"Gratis con cuenta: chat, análisis de documentos e imágenes, modelos grandes incluidos.",
+   models:"qwen max · qwen-vl · wan",
+   tags:["sin tarjeta","cuenta"],url:"https://chat.qwen.ai/",verif:"gratis"},
+
+  {n:"Le Chat",full:"Mistral AI",cat:"chat",acc:"#ff7043",reco:70,
+   tag:"Chat europeo, rapidísimo y con plan gratis generoso.",
+   free:"Plan gratuito con Mistral Small/Medium, búsqueda web, generación de imágenes y subida de archivos.",
+   models:"mistral · flux (imagen)",
+   tags:["sin tarjeta","cuenta"],url:"https://chat.mistral.ai/",verif:"plan free"},
+
+  {n:"Perplexity",full:"Perplexity",cat:"chat",acc:"#20b8cd",reco:76,
+   tag:"Búsqueda con IA y fuentes citadas.",
+   free:"Gratis con búsquedas ilimitadas y unas pocas consultas Pro al día.",
+   models:"sonar · modelos de terceros",
+   tags:["sin tarjeta","fuentes"],url:"https://www.perplexity.ai/",verif:"5 Pro/día aprox."},
+
+  {n:"Grok",full:"xAI",cat:"chat",acc:"#e8e8e8",reco:58,
+   tag:"Acceso gratis limitado desde X.",
+   free:"Uso gratuito limitado desde la web o la app de X, con cuota cada cierto número de horas.",
+   models:"grok",
+   tags:["cuenta X"],warn:"cuota muy limitada",url:"https://grok.com/",verif:"cuota por horas"},
+
+  {n:"Kimi",full:"Moonshot AI",cat:"chat",acc:"#8b7bff",reco:64,
+   tag:"Contexto larguísimo gratis para leer documentos enormes.",
+   free:"Chat gratuito con ventana de contexto muy grande, ideal para PDFs y libros completos.",
+   models:"kimi k-series",
+   tags:["sin tarjeta","contexto largo"],url:"https://kimi.com/",verif:"gratis"},
+
+  /* ---------- Local ---------- */
+  {n:"Ollama",full:"Ollama",cat:"local",acc:"#c9d1d9",reco:94,
+   tag:"Corre Llama, Qwen o Gemma en tu PC. Gratis para siempre.",
+   free:"Descarga y ejecuta modelos abiertos en local: sin límites de peticiones, sin cuenta, sin internet y sin enviar tus datos a nadie.",
+   models:"llama · qwen · gemma · deepseek · phi",
+   tags:["100% gratis","sin cuenta","privado"],warn:"necesita RAM/GPU",
+   url:"https://ollama.com/",verif:"para siempre"},
+
+  {n:"LM Studio",full:"LM Studio",cat:"local",acc:"#8fd3ff",reco:86,
+   tag:"La forma más fácil de usar modelos locales con interfaz gráfica.",
+   free:"Gratis para uso personal: descarga modelos GGUF, chatea y levanta un servidor local compatible con OpenAI.",
+   models:"cualquier GGUF",
+   tags:["100% gratis","GUI","servidor local"],url:"https://lmstudio.ai/",verif:"uso personal"},
+
+  {n:"llama.cpp",full:"ggerganov/llama.cpp",cat:"local",acc:"#f0b132",reco:70,
+   tag:"El motor detrás de casi todo. Corre en CPU, Mac y móvil.",
+   free:"Open source (MIT): compilas y corres modelos cuantizados hasta en una Raspberry Pi.",
+   models:"cualquier GGUF",
+   tags:["100% gratis","open source","avanzado"],url:"https://github.com/ggml-org/llama.cpp",verif:"MIT"}
+];
+
+/* ---------------- estado ---------------- */
+const state = { q:"", cat:"all", sinTarjeta:false, onlyFav:false, sort:"reco", quick:null };
+const favs = new Set(JSON.parse(localStorage.getItem("faf_favs") || "[]"));
+
+const CATS = [
+  {k:"all",  label:"Todo"},
+  {k:"api",  label:"API gratis"},
+  {k:"chat", label:"Chat gratis"},
+  {k:"imagen",label:"Imagen"},
+  {k:"audio",label:"Audio / voz"},
+  {k:"local",label:"En tu PC"},
+  {k:"creditos",label:"Créditos y trials"}
+];
+
+const QUICK = [
+  {k:"app",   label:"⚙️ Para mi app"},
+  {k:"hoy",   label:"💬 Para chatear hoy"},
+  {k:"img",   label:"🎨 Generar imágenes"},
+  {k:"pc",    label:"💻 Correr en mi PC"},
+  {k:"gratis",label:"🚫 Sin tarjeta ni prueba"}
+];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------------- filtros UI ---------------- */
+function buildChips(){
+  const catBox = $("#filters");
+  catBox.innerHTML = CATS.map(c=>{
+    const n = c.k==="all" ? DATA.length : DATA.filter(d=>d.cat===c.k).length;
+    return `<button class="chip${state.cat===c.k?" on":""}" data-cat="${c.k}">${c.label}<span class="n">${n}</span></button>`;
+  }).join("") + `
+    <button class="chip toggle${state.sinTarjeta?" on":""}" data-sin="1">Sin tarjeta</button>
+    <button class="chip toggle ghost${state.onlyFav?" on":""}" data-fav="1">★ Favoritos (${favs.size})</button>`;
+
+  $("#quick").innerHTML = QUICK.map(q=>`<button class="chip${state.quick===q.k?" on":""}" data-quick="${q.k}">${q.label}</button>`).join("");
+}
+
+/* ---------------- lógica de filtrado ---------------- */
+function quickMatch(d, k){
+  switch(k){
+    case "app":   return d.cat==="api" || d.cat==="creditos";
+    case "hoy":   return d.cat==="chat" || d.cat==="imagen";
+    case "img":   return d.cat==="imagen" || d.cat==="audio" || /imagen|imagen|flux|dall|sdxl/i.test(d.models+d.tag);
+    case "pc":    return d.cat==="local";
+    case "gratis":return !/tarjeta requerida|trial|Trial/.test((d.tags||[]).join(" ")) && d.cat!=="creditos";
+    default: return true;
+  }
+}
+
+function getList(){
+  let out = DATA.slice();
+  if(state.cat !== "all") out = out.filter(d=>d.cat===state.cat);
+  if(state.sinTarjeta) out = out.filter(d=>!(d.tags||[]).includes("tarjeta requerida"));
+  if(state.onlyFav) out = out.filter(d=>favs.has(d.n));
+  if(state.quick) out = out.filter(d=>quickMatch(d,state.quick));
+
+  const q = state.q.trim().toLowerCase();
+  if(q){
+    const words = q.split(/\s+/);
+    out = out.filter(d=>{
+      const hay = (d.n+" "+d.full+" "+d.tag+" "+d.free+" "+d.models+" "+(d.tags||[]).join(" ")+" "+d.cat).toLowerCase();
+      return words.every(w=>hay.includes(w));
+    });
+  }
+  if(state.sort==="az") out.sort((a,b)=>a.n.localeCompare(b.n,"es"));
+  else if(state.sort==="libre") out.sort((a,b)=>{
+    const w = x=>(x.tags||[]).includes("tarjeta requerida")?1:0;
+    return w(a)-w(b) || b.reco-a.reco;
+  });
+  else out.sort((a,b)=>b.reco-a.reco);
+  return out;
+}
+
+/* ---------------- render ---------------- */
+function render(){
+  const list = getList();
+  $("#num").textContent = list.length;
+
+  const grid = $("#grid");
+  if(!list.length){
+    grid.innerHTML = `<div class="empty"><b>Nada por aquí.</b>Prueba con otra palabra o quita algún filtro.<br><span style="font-family:var(--mono);font-size:11px">ej. gemini · imagen · local · gratis</span></div>`;
+    return;
+  }
+
+  const head = (state.quick && state.quick!=="todos") ? (()=>{
+    const map = {
+      app:"APIs con tier gratuito: empieza tu app sin pagar. Ojo con los límites por minuto y los datos sensibles.",
+      hoy:"Chats que puedes usar ahora mismo, sin API ni configuración.",
+      img:"Generación de imágenes, vídeo y voz con acceso gratuito.",
+      pc:"Modelos locales: gratis para siempre, privados y sin límites de peticiones.",
+      gratis:"Sin tarjeta de crédito ni prueba caducada."
+    };
+    return `<div class="card head">💡 ${map[state.quick]||""}</div>`;
+  })() : "";
+
+  grid.innerHTML = head + list.map(d=>{
+    const isFav = favs.has(d.n);
+    const tags = (d.tags||[]).map(t=>{
+      const cls = /tarjeta requerida|trial/i.test(t) ? "warn" : (/sin tarjeta|100% gratis|sin API key|privado|open source/i.test(t) ? "good" : "");
+      return `<span class="tag ${cls}">${esc(t)}</span>`;
+    }).join("");
+    const warn = d.warn ? `<span class="tag warn">⚠ ${esc(d.warn)}</span>` : "";
+    return `
+    <article class="card" style="--accent:${d.acc}">
+      <div class="c-top">
+        <div class="logo">${esc(d.n.slice(0,2).toUpperCase())}</div>
+        <div>
+          <div class="c-name">${esc(d.n)}</div>
+          <div class="c-cat">${esc(d.full)} · ${esc(d.cat)}</div>
+        </div>
+        <button class="fav${isFav?" on":""}" data-name="${esc(d.n)}" title="Guardar en favoritos" aria-label="Favorito">${isFav?"★":"☆"}</button>
+      </div>
+      <p class="tagline">${esc(d.tag)}</p>
+      <div class="free"><span class="ico">✓</span><span>${esc(d.free)}</span></div>
+      <p class="models"><b>modelos:</b> ${esc(d.models)}</p>
+      <div class="tags">${tags}${warn}</div>
+      <div class="c-foot">
+        <a class="go" href="${d.url}" target="_blank" rel="noopener noreferrer">Abrir
+          <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <span class="verif">${esc(d.verif||"")}</span>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+/* ---------------- eventos ---------------- */
+document.addEventListener("click", e=>{
+  const chip = e.target.closest(".chip");
+  if(chip){
+    if(chip.dataset.cat){ state.cat = chip.dataset.cat; state.quick = null; }
+    if(chip.dataset.sin){ state.sinTarjeta = !state.sinTarjeta; }
+    if(chip.dataset.fav){ state.onlyFav = !state.onlyFav; }
+    if(chip.dataset.quick){
+      state.quick = state.quick===chip.dataset.quick ? null : chip.dataset.quick;
+      if(state.quick) state.cat = "all";
+    }
+    buildChips(); render(); return;
+  }
+  const f = e.target.closest(".fav");
+  if(f){
+    const n = f.dataset.name;
+    favs.has(n) ? favs.delete(n) : favs.add(n);
+    localStorage.setItem("faf_favs", JSON.stringify([...favs]));
+    buildChips(); render();
+  }
+});
+
+$("#q").addEventListener("input", e=>{ state.q = e.target.value; render(); });
+$("#sort").addEventListener("change", e=>{ state.sort = e.target.value; render(); });
+document.addEventListener("keydown", e=>{
+  if(e.key==="/" && document.activeElement!==$("#q")){ e.preventDefault(); $("#q").focus(); }
+  if(e.key==="Escape" && document.activeElement===$("#q")){ $("#q").value=""; state.q=""; render(); $("#q").blur(); }
+});
+
+buildChips(); render();
+</script>
+</body>
+</html>
